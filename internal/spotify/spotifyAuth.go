@@ -1,7 +1,8 @@
 package spotify
 
 import (
-	"io"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -10,8 +11,6 @@ import (
 
 func GetSpotifyToken(clientID, clientSecret string) (string, error) {
 	spotifyTokenURL := "https://accounts.spotify.com/api/token"
-
-	// authHeader := base64.StdEncoding.EncodeToString([]byte("grant_type=client_credentials&client_id=" + clientID + "&client_secret=" + clientSecret))
 
 	data := url.Values{}
 	data.Set("grant_type", "client_credentials")
@@ -24,18 +23,17 @@ func GetSpotifyToken(clientID, clientSecret string) (string, error) {
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	client := &http.Client{}
-
 	res, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer res.Body.Close()
 
-	body, err := io.ReadAll(res.Body)
+	var authResponse AuthResponse
+	err = json.NewDecoder(res.Body).Decode(&authResponse)
 	if err != nil {
 		return "", err
 	}
-
-	return string(body), nil
+	fmt.Println(authResponse.ExpiresIn)
+	return authResponse.AccessToken, nil
 }

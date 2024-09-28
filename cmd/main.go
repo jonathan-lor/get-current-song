@@ -24,4 +24,12 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Println(token)
+
+	songInfo, err := spotify.GetCurrentlyListening(token)
+	if err != nil {
+		fmt.Println("Error getting recent song")
+	} else {
+		fmt.Println("FART" + songInfo)
+	}
+
 }
